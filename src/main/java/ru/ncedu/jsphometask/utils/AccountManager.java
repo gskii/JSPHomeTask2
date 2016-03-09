@@ -1,16 +1,18 @@
 package ru.ncedu.jsphometask.utils;
 
+import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 import ru.ncedu.jsphometask.accounts.*;
 import ru.ncedu.jsphometask.servlets.AuthenticationServlet;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
- * Created by Gorbatovskiy on 08.03.2016.
+ * Created by Gorbatovskiy on 09.03.2016.
  */
-public enum AccountManager {
-    INSTANCE;
+public class AccountManager {
+    public static final AccountManager INSTANCE = new AccountManager();
 
     private File baseFile;
     private HashMap<String, Account> accounts;
@@ -44,7 +46,7 @@ public enum AccountManager {
      * @return false в противном случае
      */
     public boolean isExists(Account account) throws IOException {
-        if (!accounts.containsKey(account.getLogin())){
+        if (!accounts.containsKey(account.getLogin())) {
             rebase();
         }
         return accounts.containsKey(account.getLogin());
