@@ -1,5 +1,6 @@
 package ru.ncedu.jsphometask.servlets;
 
+import ru.ncedu.jsphometask.accounts.Account;
 import ru.ncedu.jsphometask.utils.AccountManager;
 
 import javax.servlet.ServletException;
@@ -26,11 +27,12 @@ public class AuthenticationServlet extends HttpServlet {
         String password = (String) req.getParameter("password");
         String remember = (String) req.getParameter("remember");
         if (login != null && password != null) {
-            if (!accounts.isExists(login)) {
+            Account account = new Account(login, password);
+            if (!accounts.isExists(account)) {
                 resp.sendRedirect("/registration");
                 return;
             }
-            if (!accounts.validate(login, password)) {
+            if (!accounts.validate(account)) {
                 resp.sendRedirect("/oops");
                 return;
             }

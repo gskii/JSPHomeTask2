@@ -1,9 +1,6 @@
 package ru.ncedu.jsphometask.utils;
 
-import ru.ncedu.jsphometask.accounts.Account;
-import ru.ncedu.jsphometask.accounts.AccountReader;
-import ru.ncedu.jsphometask.accounts.FileAccountReader;
-import ru.ncedu.jsphometask.accounts.FileAccountWriter;
+import ru.ncedu.jsphometask.accounts.*;
 import ru.ncedu.jsphometask.servlets.AuthenticationServlet;
 
 import java.io.*;
@@ -16,7 +13,7 @@ public enum AccountManager {
     INSTANCE;
 
     private File baseFile;
-    private HashMap<String, String> accounts;
+    private HashMap<String, Account> accounts;
 
     private AccountManager() {
         baseFile = new File(AuthenticationServlet.class.getResource("/users.csv").getPath());
@@ -24,51 +21,63 @@ public enum AccountManager {
     }
 
     /**
-     * Обновляет программно-доступную базу данных.
-     * Используйте перед вызовом {@link #isExists(String) isExists} и {@link #validate(Account account) validate},
-     * чтобы удостовериться в актуальности данных.
+     * Обновляет текущую БД из удаленной БД.
+     * Используйте перед вызовом {@link #isExists(String) isExists}, {@link #validate(Account account) validate}
+     * и {@link #create(Account) create}, чтобы удостовериться в актуальности данных.
      *
-     * @throws IOException если файл БД не существует или возникли проблемы с его считыванием.
+     * @throws IOException если удаленный файл БД не существует или возникли проблемы при взаимодействии с ним.
      */
     public void rebase() throws IOException {
         try (AccountReader reader = new FileAccountReader(baseFile)) {
             accounts.clear();
             while (reader.hasNext()) {
                 Account account = reader.next();
-                accounts.put(account.getLogin(), account.getPassword());
+                accounts.put(account.getLogin(), account);
             }
         }
     }
 
-    public boolean isExists(String account) throws IOException {
-        if (accounts.containsKey(account)) {
-            return true;
-        } else {
+    /**
+     * Проверяет наличие аккаунта в БД.
+     *
+     * @param account - проверяемый аккаунт
+     * @return false в противном случае
+     */
+    public boolean isExists(Account account) throws IOException {
+        if (!accounts.containsKey(account.getLogin())){
             rebase();
-            return accounts.containsKey(account);
         }
+        return accounts.containsKey(account.getLogin());
     }
 
+    /**
+     * Добавляет в текущую и удаленную БД новый аккаунт.
+     *
+     * @param account добавляемый аккаунт.
+     * @return false если аккаунт с таким именем уже существует
+     * @throws IOException если файл БД не существует или возникли проблемы при взаимодействии с ним
+     */
     public boolean create(Account account) throws IOException {
         if (accounts.containsKey(account.getLogin())) {
             return false;
         }
-        try (FileAccountWriter writer = new FileAccountWriter(baseFile)) {
+        try (AccountWriter writer = new FileAccountWriter(baseFile)) {
             writer.write(account);
+            accounts.put(account.getLogin(), account);
             return true;
         }
     }
 
-    public boolean validate(String login, String password) {
-        return accounts.get(login).equals(password);
-    }
-
-    public boolean validate(Account account) {
-        return accounts.get(account.getLogin()).equals(account.getPassword());
-    }
-
-
-    public static void main(String[] args) {
-        System.out.println("weeee");
+    /**
+     * Аутентификация пользователя.
+     *
+     * @param checking проверяемый аккаунт.
+     * @return false в противном случае
+     */
+    public boolean validate(Account checking) {
+        Account account = accounts.get(checking.getLogin());
+        if (account != null && account.equals(checking)) {
+            return true;
+        } else return false;
     }
 }

@@ -27,11 +27,13 @@ public class RegistrationServlet extends HttpServlet {
         String login = req.getParameter("login");
         String password = req.getParameter("password");
         if (login != null && password != null) {
-            if (accounts.isExists(login)) {
+            Account account = new Account(login, password);
+            if (accounts.isExists(account)) {
                 session.setAttribute("registrationState", RegistrationState.FAILED);
                 resp.sendRedirect("/registration");
+                return;
             } else {
-                accounts.create(new Account(login, password));
+                accounts.create(account);
                 session.setAttribute("registrationState", RegistrationState.SUCCESS);
                 resp.sendRedirect("/login");
             }
