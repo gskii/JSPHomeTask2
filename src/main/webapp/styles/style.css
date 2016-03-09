@@ -1,0 +1,24 @@
+h1 {
+    color: blue;
+}
+
+body {
+    margin-left: 2em;
+    font-size: 11pt;
+}
+
+input {
+    width: 15em;
+    margin-left: 2em;
+    margin-bottom: 0.5em;
+}
+
+label {
+    float: left;
+    width: 5em;
+}
+
+.checkbox input {
+    width: 1em;
+    margin-bottom: 0.5em;
+}
