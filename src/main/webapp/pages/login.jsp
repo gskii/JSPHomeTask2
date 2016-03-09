@@ -15,29 +15,25 @@
 </head>
 <body>
 <%
-    Object authorized = session.getAttribute("authorized");
-    if (authorized == null) {
-        session.setAttribute("authorized", Boolean.FALSE);
-    } else if (authorized.equals(Boolean.TRUE)) {
-        response.sendRedirect("/hello");
-    }
-
     String login = (String) session.getAttribute("login");
     String password = (String) session.getAttribute("password");
-    if (login == null || password == null) {
-        login = "";
-        password = "";
-    }
-
     RegistrationState registrationState = (RegistrationState) session.getAttribute("registrationState");
 %>
 <h1><b>Вход в систему</b></h1>
 <p>Введите ваше имя и пароль для входа в систему</p>
 <form action="authentication">
     <label>Логин: </label>
-    <input type="TEXT" name="login" value=<%=login%>><br>
+    <%=login != null ?
+            "<input type=\"TEXT\" name=\"login\" value=" + login + "><br>"
+            :
+            "<input type=\"TEXT\" name=\"login\"><br>"
+    %>
     <label>Пароль: </label>
-    <input type="PASSWORD" name="password" value=<%=password%>><br>
+    <%= (password != null) ?
+            "<input type=\"TEXT\" name=\"password\" value=" + password + "><br>"
+            :
+            "<input type=\"TEXT\" name=\"password\"><br>"
+    %>
     <label>&nbsp;</label>
     <input type="submit" value="Отправить" formmethod="post"><br>
     <label>&nbsp;</label>

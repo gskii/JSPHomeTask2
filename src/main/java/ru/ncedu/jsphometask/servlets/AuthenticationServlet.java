@@ -4,10 +4,7 @@ import ru.ncedu.jsphometask.accounts.Account;
 import ru.ncedu.jsphometask.utils.AccountManager;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.*;
 import java.io.IOException;
 
 /**
@@ -26,7 +23,7 @@ public class AuthenticationServlet extends HttpServlet {
         String login = (String) req.getParameter("login");
         String password = (String) req.getParameter("password");
         String remember = (String) req.getParameter("remember");
-        if (login != null && password != null) {
+        if (login != null && password != null && !password.equals("")) {
             Account account = new Account(login, password);
             if (!accounts.isExists(account)) {
                 resp.sendRedirect("/registration");
@@ -36,12 +33,28 @@ public class AuthenticationServlet extends HttpServlet {
                 resp.sendRedirect("/oops");
                 return;
             }
-            session.setAttribute("authorized", Boolean.TRUE);
+            Cookie cookie = new Cookie("authorized", "true");
+            cookie.setPath("/myPath");
+            cookie.setDomain("mydomain.com");
+            cookie.setMaxAge(60 * 60 * 24);
+            resp.addCookie(cookie);
             if (remember != null) {
                 session.setAttribute("login", login);
                 session.setAttribute("password", password);
             }
             resp.sendRedirect("/hello");
+        } else {
+            boolean authorized = false;
+            for (Cookie cookie : req.getCookies()) {
+                if ("authorized".equals(cookie.getName()) && "true".equals(cookie.getValue())) {
+                    authorized = true;
+                }
+            }
+            if (authorized) {
+                resp.sendRedirect("/hello");
+            } else {
+                resp.sendRedirect("/registration");
+            }
         }
     }
 }

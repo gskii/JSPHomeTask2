@@ -1,10 +1,7 @@
 package ru.ncedu.jsphometask.servlets;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.*;
 import java.io.IOException;
 
 /**
@@ -15,5 +12,16 @@ public class GoodbyeServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.getSession().invalidate();
         resp.sendRedirect("/login");
+        for (Cookie cookie : req.getCookies()) {
+            // Все равно не смог удалить cookie...
+            if ("authorized".equals(cookie.getName())) {
+                System.out.println("coockie!");
+                cookie.setValue("false");
+                cookie.setPath("/badPath");
+                cookie.setDomain("baddomain.com");
+                cookie.setMaxAge(0);
+                resp.addCookie(cookie);
+            }
+        }
     }
 }

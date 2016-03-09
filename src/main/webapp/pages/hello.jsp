@@ -1,4 +1,7 @@
-<%@ page import="ru.ncedu.jsphometask.accounts.Account" %><%--
+<%@ page import="ru.ncedu.jsphometask.accounts.Account" %>
+<%@ page import="java.util.HashSet" %>
+<%@ page import="java.util.Collections" %>
+<%@ page import="java.util.Arrays" %><%--
   Created by IntelliJ IDEA.
   User: Gorbatovskiy
   Date: 08.03.2016
@@ -14,10 +17,13 @@
 </head>
 <body>
 <%
-    Boolean userIsValid = (Boolean) session.getAttribute("authorized");
-    if (userIsValid == null || !userIsValid) {
-        response.sendRedirect("/login");
+    boolean authorized = false;
+    for (Cookie cookie : request.getCookies()) {
+        if ("authorized".equals(cookie.getName()) && "true".equals(cookie.getValue())) {
+            authorized = true;
+        }
     }
+    if (!authorized) response.sendRedirect("/login");
     String login = (String) session.getAttribute("login");
     if (login == null) {
         login = "%Некто, кто слишком любит конфиденциальность%";
